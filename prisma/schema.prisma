@@ -11,7 +11,40 @@ datasource db {
 }
 
 model Manager {
-  id    String    @id @default(cuid())
-  email String @unique()
-  password String
+  id          String       @id @default(cuid())
+  email       String       @unique()
+  password    String
+  employees   Employee[]
+  departments Department[]
+
+  @@index([email])
+}
+
+model Department {
+  id        String     @id @default(cuid())
+  name      String
+  manager   Manager    @relation(fields: [managerId], references: [id])
+  managerId String
+  employees Employee[]
+}
+
+model Employee {
+  id           String     @id @default(cuid())
+  firstname    String
+  lastname     String
+  department   Department @relation(fields: [departmentId], references: [id])
+  departmentId String
+  manager      Manager    @relation(fields: [managerId], references: [id])
+  managerId    String
+  status       String
+  leaves       Leave[]
+  email        String     @unique
+  password     String    
+}
+
+model Leave {
+  id         String   @id @default(cuid())
+  approved   Boolean
+  employeeId String
+  employee   Employee @relation(fields: [employeeId], references: [id])
 }

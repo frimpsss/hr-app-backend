@@ -12,3 +12,11 @@ export async function hashPassword(pwd: string){
         throw Error(error)
     }
 }
+
+export async function  compare(password: string, hashPassword: string) {
+    try {
+        return bcrypt.compare(password, hashPassword)
+    } catch (error:any) {
+        throw Error(error)
+    }
+}

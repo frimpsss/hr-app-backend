@@ -1,44 +1,55 @@
 import { Request, Response } from "express";
-import { IAdmin } from "../../utils/@types";
-import { admin } from "../../services/validator.service";
+import { employee } from "../../services/validator.service";
+import { IAdmin, IReq } from "../../utils/@types";
 import { prisma } from "../../../prisma";
+import { IEmployee, EmployeeStatus } from "../../utils/@types";
 import { z } from "zod";
-import { hashPassword, compare } from "../../services/encryption.service";
+import { compare, hashPassword } from "../../services/encryption.service";
 import { createToken } from "../../services/auth.service";
-export async function register(req: Request, res: Response) {
+export async function register(req: IReq, res: Response) {
   try {
-    const { email, password }: IAdmin = req.body;
-
-    admin.parse({
+    const { firstname, lastname, email, departmentId, password }: IEmployee =
+      req.body;
+    employee.parse({
       email,
+      firstname,
+      lastname,
+      departmentId,
+      managerId: req.userId,
       password,
     });
-
-    const foundUser = await prisma.manager.findUnique({
+    if (!req.userId) {
+      return;
+    }
+    const foundUser = await prisma.employee.findUnique({
       where: {
-        email,
+        email: email,
       },
     });
 
     if (foundUser) {
       return res.status(409).send({
         status: false,
-        message: "Manager already exists.",
+        message: "user exists already",
       });
     }
-    const pwd = await hashPassword(password);
-
-    const createdManager = await prisma.manager.create({
+    const pwd = await password;
+    const created = await prisma.employee.create({
       data: {
         email,
+        firstname: firstname,
+        lastname,
+        managerId: req.userId,
+        departmentId,
+        status: EmployeeStatus.active,
         password: pwd,
       },
     });
 
-    res.status(200).send({
+    res.status(201).send({
       status: true,
-      message: "Manager created",
-      data: createdManager,
+      message: "Employee created succesfully",
+      data: created,
     });
   } catch (error: any) {
     if (error instanceof z.ZodError) {
@@ -58,37 +69,34 @@ export async function register(req: Request, res: Response) {
 export async function login(req: Request, res: Response) {
   try {
     const { email, password }: IAdmin = req.body;
-
-    admin.parse({
-      email,
-      password,
-    });
-
-    const foundUser = await prisma.manager.findUnique({
+    const foundUser = await prisma.employee.findUnique({
       where: {
         email,
       },
     });
-
     if (!foundUser) {
       return res.status(404).send({
         status: false,
         message: "Email or password incorrect",
       });
     }
-    const match = await compare(password, foundUser.password);
+
+    const match = compare(password, foundUser.password);
     if (!match) {
       return res.status(404).send({
         status: false,
         message: "Email or password incorrect",
       });
     }
+
     const token = await createToken(foundUser.id);
+
     res.status(200).send({
       status: true,
-      message: "Log in succesfull",
+      message: "Log in successful",
       token,
     });
+    
   } catch (error: any) {
     if (error instanceof z.ZodError) {
       return res.send({
