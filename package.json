@@ -6,7 +6,8 @@
   "scripts": {
     "test": "jest",
     "watch": "npx tsc --w",
-    "start": "nodemon dist/src/index.js"
+    "start": "node dist/src/index.js",
+    "devStart": "node dist/src/index.js"
   },
   "keywords": [],
   "author": "",
