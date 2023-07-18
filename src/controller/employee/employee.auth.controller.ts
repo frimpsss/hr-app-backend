@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { employee } from "../../services/validator.service";
-import { IAdmin, IReq } from "../../utils/@types";
+import { IAdmin, IReq, Role, HttpStatusCode } from "../../utils/@types";
 import { prisma } from "../../../prisma";
 import { IEmployee, EmployeeStatus } from "../../utils/@types";
 import { z } from "zod";
@@ -8,8 +8,16 @@ import { compare, hashPassword } from "../../services/encryption.service";
 import { createToken } from "../../services/auth.service";
 export async function register(req: IReq, res: Response) {
   try {
-    const { firstname, lastname, email, departmentId, password }: IEmployee =
-      req.body;
+    const {
+      firstname,
+      lastname,
+      email,
+      departmentId,
+      password,
+      role,
+      gender,
+      salary,
+    }: IEmployee = req.body;
     employee.parse({
       email,
       firstname,
@@ -17,9 +25,18 @@ export async function register(req: IReq, res: Response) {
       departmentId,
       managerId: req.userId,
       password,
+      role,
+      gender,
+      salary,
     });
     if (!req.userId) {
       return;
+    }
+    if (req.role !== Role.Manager) {
+      return res.status(HttpStatusCode.Unauthorized).send({
+        status: false,
+        message: "Only managers can create employees",
+      });
     }
     const foundUser = await prisma.employee.findUnique({
       where: {
@@ -33,7 +50,8 @@ export async function register(req: IReq, res: Response) {
         message: "user exists already",
       });
     }
-    const pwd = await password;
+
+    const pwd = await hashPassword(password);
     const created = await prisma.employee.create({
       data: {
         email,
@@ -43,6 +61,9 @@ export async function register(req: IReq, res: Response) {
         departmentId,
         status: EmployeeStatus.active,
         password: pwd,
+        role,
+        gender,
+        salary: salary as number,
       },
     });
 
@@ -89,14 +110,16 @@ export async function login(req: Request, res: Response) {
       });
     }
 
-    const token = await createToken(foundUser.id);
+    const token = await createToken({
+      id: foundUser.id,
+      role: Role.Employee,
+    });
 
     res.status(200).send({
       status: true,
       message: "Log in successful",
       token,
     });
-    
   } catch (error: any) {
     if (error instanceof z.ZodError) {
       return res.send({

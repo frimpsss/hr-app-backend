@@ -29,22 +29,27 @@ model Department {
 }
 
 model Employee {
-  id           String     @id @default(cuid())
-  firstname    String
-  lastname     String
-  department   Department @relation(fields: [departmentId], references: [id])
-  departmentId String
-  manager      Manager    @relation(fields: [managerId], references: [id])
-  managerId    String
-  status       String
-  leaves       Leave[]
-  email        String     @unique
-  password     String    
+  id             String     @id @default(cuid())
+  firstname      String
+  lastname       String
+  department     Department @relation(fields: [departmentId], references: [id])
+  departmentId   String
+  manager        Manager    @relation(fields: [managerId], references: [id])
+  managerId      String
+  status         String
+  leaves         Leave[]
+  email          String     @unique
+  password       String
+  role           String
+  salary         Float
+  gender         String
 }
 
 model Leave {
-  id         String   @id @default(cuid())
-  approved   Boolean
-  employeeId String
-  employee   Employee @relation(fields: [employeeId], references: [id])
+  id           String   @id @default(cuid())
+  approved     Boolean
+  employeeId   String
+  employee     Employee @relation(fields: [employeeId], references: [id])
+  duration     Int
+  reason       String
 }

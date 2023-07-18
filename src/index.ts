@@ -4,9 +4,14 @@ import employeeAuthRouter from "./routes/employee.auth.routes";
 import bodyParser from "body-parser";
 import dotenv from "dotenv";
 import departmentRouter from './routes/department.routes'
+import employeesManagementRouter from './routes/employment.management.routes'
 import { errorHandler } from "./middleware/errorhandler.middleware";
 import { CustomError } from "./middleware/errorhandler.middleware";
 import { verify } from "./middleware/verify.middleware";
+
+
+
+
 export const app: Express = express();
 dotenv.config();
 
@@ -24,6 +29,7 @@ app.all("/", (req: Request, res: Response) => {
 app.use("/api/admin", adminAuthRouter);
 app.use("/api/employee", employeeAuthRouter);
 app.use('/api/department', verify, departmentRouter)
+app.use("/employees",verify, employeesManagementRouter)
 
 app.all("*", (req: Request, res: Response, next: NextFunction) => {
   const error = new CustomError("Not found", 404);

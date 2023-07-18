@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { IAdmin } from "../../utils/@types";
+import { IAdmin, Role } from "../../utils/@types";
 import { admin } from "../../services/validator.service";
 import { prisma } from "../../../prisma";
 import { z } from "zod";
@@ -83,7 +83,10 @@ export async function login(req: Request, res: Response) {
         message: "Email or password incorrect",
       });
     }
-    const token = await createToken(foundUser.id);
+    const token = await createToken({
+      id: foundUser.id, 
+      role: Role.Manager
+    });
     res.status(200).send({
       status: true,
       message: "Log in succesfull",

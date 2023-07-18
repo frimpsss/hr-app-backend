@@ -1,8 +1,10 @@
 import jwt from "jsonwebtoken"
+import { tokenPayload } from "../utils/@types"
 
-export async function createToken (payload: string){
+
+export async function createToken (payload: tokenPayload){
     try {
-        return jwt.sign({id: payload}, String(process.env.TOKEN_SECRET), {expiresIn: '10d'})
+        return jwt.sign(payload, process.env.TOKEN_SECRET as string, {expiresIn: '10d'})
     } catch (error:any) {
         throw new Error(error)
     }

@@ -11,7 +11,10 @@ export const employee = z.object({
     lastname:  z.string(),
     departmentId: z.string(),
     managerId: z.string(),
-    password: z.string()
+    password: z.string(),
+    role: z.string(),
+    gender: z.string(), 
+    salary: z.number()
 })
 
 export const department = z.object({

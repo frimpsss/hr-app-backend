@@ -21,6 +21,7 @@ export async function verify(req: IReq, res: Response, next: NextFunction) {
       ) as tokenPayload;
   
       req.userId = payload.id;
+      req.role = payload.role
   
       next();
     } catch (error) {
