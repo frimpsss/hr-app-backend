@@ -9,8 +9,16 @@ export enum Gender{
   Female='Female', 
   Other="Other"
 }
-
-
+export enum LeaveStatus{
+  pending='Pending',
+  approved='Approved',
+  rejected='Rejected'
+}
+export interface ILeave{
+  reason: string, 
+  startDate: Date, 
+  endDate: Date
+}
 export interface IEmployee {
   email: string;
   password: string;

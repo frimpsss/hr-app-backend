@@ -1,6 +1,9 @@
 import { Request, Response } from "express";
 import { EmployeeStatus, HttpStatusCode, IReq, Role } from "../../utils/@types";
 import { prisma } from "../../../prisma";
+import { admin } from "../../services/validator.service";
+import { z } from "zod";
+import { hashPassword } from "../../services/encryption.service";
 export async function allEmployees(req: IReq, res: Response) {
   try {
     if (req.role !== Role.Manager) {
@@ -58,6 +61,7 @@ export async function singleEmployee(req: IReq, res: Response) {
         email: true,
         firstname: true,
         lastname: true,
+        department: true
       },
     });
     if (!employee) {
@@ -86,6 +90,12 @@ export async function deleteEmployee(req: IReq, res: Response) {
       return res.status(400).send({
         status: false,
         message: "pass id",
+      });
+    }
+    if (req.role !== Role.Manager) {
+      return res.status(HttpStatusCode.Unauthorized).send({
+        status: false,
+        message: "Not a manager",
       });
     }
     const employee = await prisma.employee.findUnique({
@@ -162,6 +172,61 @@ export async function adminEditEmployeesInfo(req: IReq, res: Response) {
       data: update,
     });
   } catch (error) {
+    res.status(500).send({
+      status: false,
+      message: error,
+    });
+  }
+}
+
+export async function employeeEditInfo(req: IReq, res: Response) {
+  try {
+    const { email, password } = req.body;
+    if (req.role !== Role.Employee) {
+      return res.status(HttpStatusCode.Unauthorized).send({
+        status: false,
+        message: "Only employees can edit password",
+      });
+    }
+
+    admin.parse({
+      email,
+      password,
+    });
+
+    const found = await prisma.employee.findUnique({
+      where: {
+        email,
+      },
+    });
+
+    if (!found) {
+      return res.status(HttpStatusCode.NotFound).send({
+        status: false,
+        message: "User doesnt exist",
+      });
+    }
+    const pwd = await hashPassword(password);
+    found.password = pwd;
+    await prisma.employee.update({
+      where: {
+        email,
+      },
+      data: found,
+    });
+
+    res.status(HttpStatusCode.Ok).send({
+      status: true,
+      message: "Password created",
+    });
+  } catch (error: any) {
+    if (error instanceof z.ZodError) {
+      return res.send({
+        status: false,
+        message: "validation error",
+        data: error.errors,
+      });
+    }
     res.status(500).send({
       status: false,
       message: error,

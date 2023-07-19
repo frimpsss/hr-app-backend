@@ -1,13 +1,19 @@
 import { Response, Request } from "express";
 import { prisma } from "../../../prisma";
 import { department } from "../../services/validator.service";
-import { IReq } from "../../utils/@types";
+import { HttpStatusCode, IReq, Role } from "../../utils/@types";
 import { z } from "zod";
 export async function create(req: IReq, res: Response) {
   try {
     const { name } = req.body;
     if (!req.userId) {
       return;
+    }
+    if (req.role !== Role.Manager) {
+      return res.status(HttpStatusCode.Unauthorized).send({
+        status: false,
+        message: "Not a manager",
+      });
     }
     department.parse({
       name,
@@ -35,6 +41,35 @@ export async function create(req: IReq, res: Response) {
       });
     }
     res.status(500).send({
+      status: false,
+      message: error,
+    });
+  }
+}
+
+export async function allDepartment(req: IReq, res: Response) {
+  try {
+    if (!req.userId) {
+      return;
+    }
+    if (req.role !== Role.Manager) {
+      return res.status(HttpStatusCode.Unauthorized).send({
+        status: false,
+        message: "Not a manager",
+      });
+    }
+    const departments = await prisma.department.findMany({
+      where: {
+        managerId: req.userId,
+      },
+    });
+    res.status(HttpStatusCode.Ok).send({
+      status: true,
+      data: departments,
+      message: "Department retrieved successfully",
+    });
+  } catch (error) {
+    return res.status(500).send({
       status: false,
       message: error,
     });
