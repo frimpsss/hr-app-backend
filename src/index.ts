@@ -1,4 +1,5 @@
 import express, { Express, NextFunction, Request, Response } from "express";
+import cors from 'cors'
 import adminAuthRouter from "./routes/admin.auth.route";
 import employeeAuthRouter from "./routes/employee.auth.routes";
 import bodyParser from "body-parser";
@@ -8,21 +9,19 @@ import employeesManagementRouter from './routes/employment.management.routes'
 import { errorHandler } from "./middleware/errorhandler.middleware";
 import { CustomError } from "./middleware/errorhandler.middleware";
 import { verify } from "./middleware/verify.middleware";
-
-
-
+import { corsOptions } from "./utils/config";
 
 export const app: Express = express();
 dotenv.config();
 
 const port: number = parseInt(process.env.PORT as string, 10) || 6006;
-
+app.use(cors(corsOptions))
 app.use(express.json(), bodyParser.json());
 
 app.all("/", (req: Request, res: Response) => {
   res.send({
     status: true,
-    message: "Welcome to HR-app api!",
+    message: "Welcome to HR-app api",
   });
 });
 
