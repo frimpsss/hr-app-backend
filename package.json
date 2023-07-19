@@ -8,7 +8,7 @@
     "watch": "npx tsc --w",
     "start": "node dist/src/index.js",
     "devStart": "npx tsc --w & nodemon dist/src/index.js",
-    "build": "npx tsc"
+    "build": "npx prisma db push && npx tsc"
   },
   "keywords": [],
   "author": "",
