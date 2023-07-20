@@ -61,7 +61,7 @@ export async function singleEmployee(req: IReq, res: Response) {
         email: true,
         firstname: true,
         lastname: true,
-        department: true
+        department: true,
       },
     });
     if (!employee) {
@@ -228,6 +228,63 @@ export async function employeeEditInfo(req: IReq, res: Response) {
       });
     }
     res.status(500).send({
+      status: false,
+      message: error,
+    });
+  }
+}
+
+export async function getEmployeeStats(req: IReq, res: Response) {
+  try {
+    if (req.role !== Role.Manager) {
+      return res.status(HttpStatusCode.Unauthorized).send({
+        status: false,
+        message: "Not a manager",
+      });
+    }
+
+    let totalnumber: number;
+    let totalonleave: number;
+    let totalactive: number;
+    let companycapacity: number | null | undefined;
+
+    totalnumber = await prisma.employee.count({
+      where: {
+        managerId: req.userId as string,
+      },
+    });
+
+    totalonleave = await prisma.employee.count({
+      where: {
+        id: req.userId as string,
+        status: EmployeeStatus.onLeave,
+      },
+    });
+
+    totalactive = await prisma.employee.count({
+      where: {
+        id: req.userId as string,
+        status: EmployeeStatus.active,
+      },
+    });
+    const found = await prisma.manager.findUnique({
+      where: {
+        id: req.userId,
+      },
+    });
+    companycapacity = found?.companyCapacity;
+
+    res.status(HttpStatusCode.Ok).send({
+      status: true,
+      data: {
+        totalactive,
+        totalonleave,
+        totalnumber,
+        companycapacity,
+      },
+    });
+  } catch (error) {
+    return res.status(HttpStatusCode.InternalServerError).send({
       status: false,
       message: error,
     });

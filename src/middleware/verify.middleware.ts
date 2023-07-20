@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from "express";
+import { Response, NextFunction } from "express";
 import { tokenPayload } from "../utils/@types";
 import { IReq } from "../utils/@types";
 import jwt from 'jsonwebtoken'

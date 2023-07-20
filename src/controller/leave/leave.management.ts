@@ -1,4 +1,5 @@
-import { Request, Response } from "express";
+import { Response } from "express";
+import { PrismaClientValidationError } from "@prisma/client/runtime";
 import {
   HttpStatusCode,
   ILeave,
@@ -7,19 +8,32 @@ import {
   LeaveStatus,
 } from "../../utils/@types";
 import { prisma } from "../../../prisma";
+import { z } from "zod";
+import { getDaysBetweenDates } from "../../utils";
+import { leave } from "../../services/validator.service";
+
+
 export async function requestLeave(req: IReq, res: Response) {
   try {
     if (!req.userId) {
       return;
     }
     const { reason, startDate, endDate }: ILeave = req.body;
-    const duration = getDaysBetweenDates(startDate, endDate);
+    const duration = getDaysBetweenDates(
+      new Date(startDate),
+      new Date(endDate)
+    );
+    leave.parse({
+      reason, 
+      startDate, 
+      endDate
+    })
     const created = await prisma.leave.create({
       data: {
-        employeeId: req.userId,
+        employeeId: req.userId as string,
         reason,
-        startDate,
-        endDate,
+        startDate: new Date(startDate),
+        endDate: new Date(endDate),
         duration,
         reviewed: false,
         status: LeaveStatus.pending,
@@ -30,7 +44,21 @@ export async function requestLeave(req: IReq, res: Response) {
       message: "Leave request created successfully",
       data: created,
     });
-  } catch (error) {
+  } catch (error: any) {
+    if (error instanceof z.ZodError) {
+      return res.send({
+        status: false,
+        message: "validation error",
+        data: error.errors,
+      });
+    }
+    if (error as PrismaClientValidationError) {
+      return res.status(HttpStatusCode.InternalServerError).send({
+        status: false,
+        message: "Validation Error",
+      });
+    }
+
     return res.status(HttpStatusCode.InternalServerError).send({
       status: false,
       message: error,
@@ -107,7 +135,7 @@ export async function allLeaves(req: IReq, res: Response) {
       },
     });
 
-    res.send(HttpStatusCode.Ok).send({
+    res.status(HttpStatusCode.Ok).send({
       status: true,
       message: "leaves retrieved succesfully",
       data: leaves,
@@ -137,7 +165,7 @@ export async function userLeaveHistory(req: IReq, res: Response) {
         },
       });
 
-      res.send(HttpStatusCode.Ok).send({
+      res.status(HttpStatusCode.Ok).send({
         status: true,
         message: "leaves retrieved succesfully",
         data: leaves,
@@ -149,7 +177,7 @@ export async function userLeaveHistory(req: IReq, res: Response) {
         },
       });
 
-      res.send(HttpStatusCode.Ok).send({
+      res.status(HttpStatusCode.Ok).send({
         status: true,
         message: "leaves retrieved succesfully",
         data: leaves,

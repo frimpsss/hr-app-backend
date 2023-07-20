@@ -29,7 +29,9 @@ export interface IEmployee {
   role: string,
   gender: Gender, 
   salary: Number
+  contact: string
 }
+
 
 export enum Role {
   Manager='Manager',
@@ -116,4 +118,11 @@ export enum HttpStatusCode {
   LoopDetected = 508,
   NotExtended = 510,
   NetworkAuthenticationRequired = 511,
+}
+
+
+export enum LeaveType {
+  sick,
+  casual,
+
 }

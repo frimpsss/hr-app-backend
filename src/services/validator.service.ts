@@ -14,10 +14,17 @@ export const employee = z.object({
     password: z.string(),
     role: z.string(),
     gender: z.string(), 
-    salary: z.number()
+    salary: z.number(),
+    contact: z.string()
 })
 
 export const department = z.object({
     name: z.string(), 
     managerId: z.string()
+})
+
+export const leave = z.object({
+    reason: z.string(),
+    startDate: z.date(),
+    endDate: z.date()
 })

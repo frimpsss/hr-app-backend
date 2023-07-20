@@ -11,7 +11,7 @@
     "build": "npx prisma db push && npx tsc"
   },
   "keywords": [],
-  "author": "",
+  "author": "Akwasi Ampomah Frimpong",
   "license": "ISC",
   "devDependencies": {
     "@types/bcrypt": "^5.0.0",

@@ -1,4 +1,4 @@
-function getDaysBetweenDates(date1: Date, date2: Date): number {
+export function getDaysBetweenDates(date1: Date, date2: Date): number {
   // Check if the two dates are the same
   if (date1.getTime() === date2.getTime()) {
     throw new Error("The two dates are the same.");

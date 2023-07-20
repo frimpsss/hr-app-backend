@@ -11,11 +11,12 @@ datasource db {
 }
 
 model Manager {
-  id          String       @id @default(cuid())
-  email       String       @unique()
-  password    String
-  employees   Employee[]
-  departments Department[]
+  id              String       @id @default(cuid())
+  email           String       @unique()
+  password        String
+  companyCapacity Int?
+  employees       Employee[]
+  departments     Department[]
 
   @@index([email])
 }
@@ -29,30 +30,32 @@ model Department {
 }
 
 model Employee {
-  id           String     @id @default(cuid())
-  firstname    String
-  lastname     String
-  department   Department @relation(fields: [departmentId], references: [id])
-  departmentId String
-  manager      Manager    @relation(fields: [managerId], references: [id])
-  managerId    String
-  status       String
-  leaves       Leave[]
-  email        String     @unique
-  password     String
-  role         String
-  salary       Float
-  gender       String
-  createdOn    DateTime   @default(now())
+  id                 String     @id @default(cuid())
+  firstname          String
+  lastname           String
+  department         Department @relation(fields: [departmentId], references: [id])
+  departmentId       String
+  manager            Manager    @relation(fields: [managerId], references: [id])
+  managerId          String
+  status             String
+  leaves             Leave[]
+  email              String     @unique
+  password           String
+  role               String
+  salary             Float
+  gender             String
+  createdOn          DateTime   @default(now())
+  leaveDaysRemaining Int        @default(30)
+  contact            String?
 }
 
 model Leave {
-  id         String   @id @default(cuid())
-  createdOn  DateTime @default(now())
+  id         String    @id @default(cuid())
+  createdOn  DateTime? @default(now())
   status     String
   reviewed   Boolean
   employeeId String
-  employee   Employee @relation(fields: [employeeId], references: [id])
+  employee   Employee  @relation(fields: [employeeId], references: [id])
   duration   Int
   reason     String
   startDate  DateTime

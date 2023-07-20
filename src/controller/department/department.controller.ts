@@ -65,8 +65,8 @@ export async function allDepartment(req: IReq, res: Response) {
     });
     res.status(HttpStatusCode.Ok).send({
       status: true,
-      data: departments,
       message: "Department retrieved successfully",
+      data: departments,
     });
   } catch (error) {
     return res.status(500).send({

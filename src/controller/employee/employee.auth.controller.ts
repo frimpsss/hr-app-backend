@@ -17,6 +17,7 @@ export async function register(req: IReq, res: Response) {
       role,
       gender,
       salary,
+      contact
     }: IEmployee = req.body;
     employee.parse({
       email,
@@ -28,6 +29,7 @@ export async function register(req: IReq, res: Response) {
       role,
       gender,
       salary,
+      contact
     });
     if (!req.userId) {
       return;
