@@ -7,11 +7,12 @@ import { hashPassword, compare } from "../../services/encryption.service";
 import { createToken } from "../../services/auth.service";
 export async function register(req: Request, res: Response) {
   try {
-    const { email, password }: IAdmin = req.body;
+    const { email, password, companyCapacity }: IAdmin = req.body;
 
     admin.parse({
       email,
       password,
+      companyCapacity
     });
 
     const foundUser = await prisma.manager.findUnique({
@@ -32,6 +33,7 @@ export async function register(req: Request, res: Response) {
       data: {
         email,
         password: pwd,
+        companyCapacity
       },
     });
 

@@ -3,6 +3,7 @@ export interface IAdmin {
   email: string;
   password: string;
   id?: string;
+  companyCapacity: number
 }
 export enum Gender{
   Male='Male', 

@@ -12,7 +12,6 @@ import { z } from "zod";
 import { getDaysBetweenDates } from "../../utils";
 import { leave } from "../../services/validator.service";
 
-
 export async function requestLeave(req: IReq, res: Response) {
   try {
     if (!req.userId) {
@@ -24,10 +23,29 @@ export async function requestLeave(req: IReq, res: Response) {
       new Date(endDate)
     );
     leave.parse({
-      reason, 
-      startDate, 
-      endDate
-    })
+      reason,
+      startDate,
+      endDate,
+    });
+    const user = await prisma.employee.findUnique({
+      where: {
+        id: req.userId,
+      },
+    });
+    if (!user) {
+      return res.status(HttpStatusCode.NotFound).send({
+        status: false,
+        message: "User not found",
+      });
+    }
+
+    if (duration > user.leaveDaysRemaining) {
+      return res.status(HttpStatusCode.BadRequest).send({
+        status: false,
+        message: "Leave days exxeeded",
+      });
+    }
+
     const created = await prisma.leave.create({
       data: {
         employeeId: req.userId as string,
@@ -95,6 +113,28 @@ export async function manageLeave(req: IReq, res: Response) {
     }
     leave.status = approve ? LeaveStatus.approved : LeaveStatus.rejected;
     leave.reviewed = true;
+    if (approve) {
+      const user = await prisma.employee.findUnique({
+        where: {
+          id: leave.employeeId,
+        },
+      });
+
+      if (!user) {
+        return res.status(HttpStatusCode.NotFound).send({
+          status: false,
+          message: "User not found",
+        });
+      }
+
+      user.leaveDaysRemaining = user?.leaveDaysRemaining - leave.duration;
+      await prisma.employee.update({
+        where: {
+          id: user.id,
+        },
+        data: user,
+      });
+    }
     const update = await prisma.leave.update({
       where: {
         id: leave.id,
