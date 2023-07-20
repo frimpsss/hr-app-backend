@@ -31,7 +31,8 @@ Always returns JSON
   ```
     {
         "status": true,
-        "message": "Message string"
+        "message": "Message string",
+        "data": ARRAY or NULL
     }
   ```
 
@@ -41,9 +42,8 @@ Always returns JSON
 
   ```
     {
-        "status": true,
-        "message": "Message string",
-        "data": ARRAY or NULL
+        "status": false,
+        "message": "Message string"
     }
   ```
 
