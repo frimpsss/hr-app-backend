@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { IAdmin, Role } from "../../utils/@types";
-import { admin } from "../../services/validator.service";
+import { admin, adminLogin } from "../../services/validator.service";
 import { prisma } from "../../../prisma";
 import { z } from "zod";
 import { hashPassword, compare } from "../../services/encryption.service";
@@ -61,7 +61,7 @@ export async function login(req: Request, res: Response) {
   try {
     const { email, password }: IAdmin = req.body;
 
-    admin.parse({
+    adminLogin.parse({
       email,
       password,
     });

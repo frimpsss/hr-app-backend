@@ -109,19 +109,15 @@ export async function deleteEmployee(req: IReq, res: Response) {
         message: "Employee not found",
       });
     }
-    employee.status = EmployeeStatus.left;
-
-    await prisma.employee.update({
+    await prisma.employee.delete({
       where: {
-        id: employee.id,
-      },
-      data: employee,
-    });
+        id: employee.id
+      }
+    })
 
     res.status(200).send({
       status: true,
-      message: "Status changed succesfully",
-      data: employee,
+      message: "Deleted succesfully"
     });
   } catch (error) {
     res.status(500).send({

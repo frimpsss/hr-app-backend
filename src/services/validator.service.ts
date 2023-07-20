@@ -5,6 +5,10 @@ export const admin = z.object({
     password: z.string().min(8),
     companyCapacity: z.number()
 })
+export const adminLogin = z.object({
+    email: z.string().email(), 
+    password: z.string().min(8),
+})
 
 export const employee = z.object({
     email: z.string().email(),
