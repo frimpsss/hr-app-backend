@@ -60,4 +60,5 @@ model Leave {
   reason     String
   startDate  DateTime
   endDate    DateTime
+  leaveType  String?
 }

@@ -3,22 +3,23 @@ export interface IAdmin {
   email: string;
   password: string;
   id?: string;
-  companyCapacity: number
+  companyCapacity: number;
 }
-export enum Gender{
-  Male='Male', 
-  Female='Female', 
-  Other="Other"
+export enum Gender {
+  Male = "Male",
+  Female = "Female",
+  Other = "Other",
 }
-export enum LeaveStatus{
-  pending='Pending',
-  approved='Approved',
-  rejected='Rejected'
+export enum LeaveStatus {
+  pending = "Pending",
+  approved = "Approved",
+  rejected = "Rejected",
 }
-export interface ILeave{
-  reason: string, 
-  startDate: Date, 
-  endDate: Date
+export interface ILeave {
+  reason: string;
+  startDate: Date;
+  endDate: Date;
+  leaveType: LeaveType
 }
 export interface IEmployee {
   email: string;
@@ -27,20 +28,19 @@ export interface IEmployee {
   managerId: string;
   firstname: string;
   lastname: string;
-  role: string,
-  gender: Gender, 
-  salary: Number
-  contact: string
+  role: string;
+  gender: Gender;
+  salary: Number;
+  contact: string;
 }
 
-
 export enum Role {
-  Manager='Manager',
-  Employee='Employee'
+  Manager = "Manager",
+  Employee = "Employee",
 }
 export interface IReq extends Request {
   userId?: string;
-  role?:  Role
+  role?: Role;
 }
 
 export enum EmployeeStatus {
@@ -50,7 +50,7 @@ export enum EmployeeStatus {
 }
 export interface tokenPayload {
   id: string;
-  role: Role
+  role: Role;
 }
 
 export enum HttpStatusCode {
@@ -121,9 +121,8 @@ export enum HttpStatusCode {
   NetworkAuthenticationRequired = 511,
 }
 
-
 export enum LeaveType {
-  sick,
-  casual,
-
+  sick = "SICK",
+  casual = "CASUAL",
+  breavement = "BEAVEMENT",
 }

@@ -111,13 +111,13 @@ export async function deleteEmployee(req: IReq, res: Response) {
     }
     await prisma.employee.delete({
       where: {
-        id: employee.id
-      }
-    })
+        id: employee.id,
+      },
+    });
 
     res.status(200).send({
       status: true,
-      message: "Deleted succesfully"
+      message: "Deleted succesfully",
     });
   } catch (error) {
     res.status(500).send({

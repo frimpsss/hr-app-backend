@@ -17,15 +17,16 @@ export async function requestLeave(req: IReq, res: Response) {
     if (!req.userId) {
       return;
     }
-    const { reason, startDate, endDate }: ILeave = req.body;
+    const { reason, startDate, endDate, leaveType }: ILeave = req.body;
     const duration = getDaysBetweenDates(
       new Date(startDate),
       new Date(endDate)
     );
     leave.parse({
       reason,
-      startDate,
-      endDate,
+      startDate: new Date(startDate),
+      endDate: new Date(endDate),
+      leaveType
     });
     const user = await prisma.employee.findUnique({
       where: {
@@ -55,6 +56,7 @@ export async function requestLeave(req: IReq, res: Response) {
         duration,
         reviewed: false,
         status: LeaveStatus.pending,
+        leaveType: leaveType
       },
     });
     res.status(HttpStatusCode.Created).send({
