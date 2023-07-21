@@ -62,6 +62,8 @@ export async function singleEmployee(req: IReq, res: Response) {
         firstname: true,
         lastname: true,
         department: true,
+        contact: true,
+        role: true
       },
     });
     if (!employee) {
