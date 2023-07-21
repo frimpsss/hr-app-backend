@@ -4,7 +4,7 @@ const router:Router = express.Router()
 
 router.get('/all', allEmployees)
 router.get('/employee', singleEmployee)
-router.patch('/left', deleteEmployee)
+router.delete('/left', deleteEmployee)
 router.patch('/admin/edit', adminEditEmployeesInfo )
 router.patch('/employee/edit', employeeEditInfo)
 router.get('/stats', getEmployeeStats)
