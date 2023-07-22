@@ -175,6 +175,9 @@ export async function allLeaves(req: IReq, res: Response) {
           managerId: req.userId,
         },
       },
+      include: {
+        employee: true
+      }
     });
 
     res.status(HttpStatusCode.Ok).send({
@@ -205,6 +208,9 @@ export async function userLeaveHistory(req: IReq, res: Response) {
           },
           employeeId: employeeId as string,
         },
+        include: {
+          employee: true
+        }
       });
 
       res.status(HttpStatusCode.Ok).send({
