@@ -66,6 +66,7 @@ export async function register(req: IReq, res: Response) {
         role,
         gender,
         salary: salary as number,
+        contact
       },
     });
 
