@@ -57,14 +57,6 @@ export async function singleEmployee(req: IReq, res: Response) {
       where: {
         id: String(id),
       },
-      select: {
-        email: true,
-        firstname: true,
-        lastname: true,
-        department: true,
-        contact: true,
-        role: true
-      },
     });
     if (!employee) {
       return res.status(404).send({
