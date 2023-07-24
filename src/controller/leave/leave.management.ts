@@ -22,12 +22,19 @@ export async function requestLeave(req: IReq, res: Response) {
       new Date(startDate),
       new Date(endDate)
     );
+
     leave.parse({
       reason,
       startDate: new Date(startDate),
       endDate: new Date(endDate),
-      leaveType
+      leaveType,
     });
+    if (new Date().getTime() > new Date(startDate).getTime()) {
+      return res.status(HttpStatusCode.BadRequest).send({
+        status: false,
+        message: "Past date",
+      });
+    }
     const user = await prisma.employee.findUnique({
       where: {
         id: req.userId,
@@ -56,7 +63,7 @@ export async function requestLeave(req: IReq, res: Response) {
         duration,
         reviewed: false,
         status: LeaveStatus.pending,
-        leaveType: leaveType
+        leaveType: leaveType,
       },
     });
     res.status(HttpStatusCode.Created).send({
@@ -91,7 +98,7 @@ export async function manageLeave(req: IReq, res: Response) {
     if (!req.userId) {
       return;
     }
-    const { id, approve }: { id: string; approve: boolean } = req.body;
+    const { id, approved }: { id: string; approved: boolean } = req.body;
 
     if (req.role !== Role.Manager) {
       return res.status(HttpStatusCode.Unauthorized).send({
@@ -113,9 +120,16 @@ export async function manageLeave(req: IReq, res: Response) {
         message: "Leave not found",
       });
     }
-    leave.status = approve ? LeaveStatus.approved : LeaveStatus.rejected;
+    if (leave.reviewed) {
+      return res.status(HttpStatusCode.AlreadyReported).send({
+        status: false,
+        message: "Already reviewed",
+      });
+    }
+    leave.status =
+      approved == true ? LeaveStatus.approved : LeaveStatus.rejected;
     leave.reviewed = true;
-    if (approve) {
+    if (approved) {
       const user = await prisma.employee.findUnique({
         where: {
           id: leave.employeeId,
@@ -176,8 +190,8 @@ export async function allLeaves(req: IReq, res: Response) {
         },
       },
       include: {
-        employee: true
-      }
+        employee: true,
+      },
     });
 
     res.status(HttpStatusCode.Ok).send({
@@ -209,8 +223,8 @@ export async function userLeaveHistory(req: IReq, res: Response) {
           employeeId: employeeId as string,
         },
         include: {
-          employee: true
-        }
+          employee: true,
+        },
       });
 
       res.status(HttpStatusCode.Ok).send({
