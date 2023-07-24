@@ -24,7 +24,7 @@ model Manager {
 model Department {
   id        String     @id @default(cuid())
   name      String
-  manager   Manager    @relation(fields: [managerId], references: [id])
+  manager   Manager    @relation(fields: [managerId], references: [id], onDelete: Cascade)
   managerId String
   employees Employee[]
 }
@@ -33,9 +33,9 @@ model Employee {
   id                 String     @id @default(cuid())
   firstname          String
   lastname           String
-  department         Department @relation(fields: [departmentId], references: [id])
+  department         Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
   departmentId       String
-  manager            Manager    @relation(fields: [managerId], references: [id])
+  manager            Manager    @relation(fields: [managerId], references: [id], onDelete: Cascade)
   managerId          String
   status             String
   leaves             Leave[]
@@ -55,7 +55,7 @@ model Leave {
   status     String
   reviewed   Boolean
   employeeId String
-  employee   Employee  @relation(fields: [employeeId], references: [id])
+  employee   Employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
   duration   Int
   reason     String
   startDate  DateTime

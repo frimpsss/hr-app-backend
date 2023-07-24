@@ -9,7 +9,11 @@ import {
 } from "../../utils/@types";
 import { prisma } from "../../../prisma";
 import { z } from "zod";
-import { getDaysBetweenDates } from "../../utils";
+import {
+  areDatesInRange,
+  getDaysBetweenDates,
+  updateEmployeeStatus,
+} from "../../utils";
 import { leave } from "../../services/validator.service";
 
 export async function requestLeave(req: IReq, res: Response) {
@@ -39,13 +43,33 @@ export async function requestLeave(req: IReq, res: Response) {
       where: {
         id: req.userId,
       },
+      include: {
+        leaves: true,
+      },
     });
+    let validDate: boolean = false
+
     if (!user) {
       return res.status(HttpStatusCode.NotFound).send({
         status: false,
         message: "User not found",
       });
     }
+    for (const leave of user.leaves) {
+      if (leave.status == LeaveStatus.approved) {
+        validDate = areDatesInRange(
+          new Date(leave.startDate),
+          new Date(leave.endDate),
+          new Date(startDate),
+          new Date(endDate),
+        );
+        
+        if(validDate){
+          break
+        }
+      }
+    }
+
 
     if (duration > user.leaveDaysRemaining) {
       return res.status(HttpStatusCode.BadRequest).send({
@@ -53,7 +77,12 @@ export async function requestLeave(req: IReq, res: Response) {
         message: "Leave days exxeeded",
       });
     }
-
+    if (validDate) {
+      return res.status(HttpStatusCode.BadRequest).send({
+        status: false,
+        message: "Already booked dates",
+      });
+    }
     const created = await prisma.leave.create({
       data: {
         employeeId: req.userId as string,
@@ -106,6 +135,7 @@ export async function manageLeave(req: IReq, res: Response) {
         message: "Not a manager",
       });
     }
+    await updateEmployeeStatus(req.userId);
     const leave = await prisma.leave.findFirst({
       where: {
         id: id as string,

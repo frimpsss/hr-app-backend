@@ -33,7 +33,7 @@ app.use("/employees", verify, employeesManagementRouter);
 app.use("/leave", verify, leaveManagementRouter);
 
 app.all("*", (req: Request, res: Response, next: NextFunction) => {
-  const error = new CustomError("Not found", 404);
+  const error = new CustomError("Invalid route", 404);
   next(error);
 });
 app.use(errorHandler);

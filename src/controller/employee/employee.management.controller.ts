@@ -4,6 +4,7 @@ import { prisma } from "../../../prisma";
 import { admin } from "../../services/validator.service";
 import { z } from "zod";
 import { hashPassword } from "../../services/encryption.service";
+import { updateEmployeeStatus } from "../../utils";
 export async function allEmployees(req: IReq, res: Response) {
   try {
     if (req.role !== Role.Manager) {
@@ -12,9 +13,10 @@ export async function allEmployees(req: IReq, res: Response) {
         message: "Not a manager",
       });
     }
+    await updateEmployeeStatus(req.userId as string)
     const employees = await prisma.employee.findMany({
       where: {
-        managerId: String(req.userId),
+        managerId: req.userId as string,
       },
       include: {
         department: {
@@ -53,8 +55,8 @@ export async function singleEmployee(req: IReq, res: Response) {
           id: String(id),
         },
         include: {
-          department: true
-        }
+          department: true,
+        },
       });
       if (!employee) {
         return res.status(404).send({
@@ -111,9 +113,10 @@ export async function deleteEmployee(req: IReq, res: Response) {
     }
     const employee = await prisma.employee.findUnique({
       where: {
-        id: String(id),
+        id: id as string,
       },
     });
+
     if (!employee) {
       return res.status(404).send({
         status: false,
@@ -140,7 +143,21 @@ export async function deleteEmployee(req: IReq, res: Response) {
 
 export async function adminEditEmployeesInfo(req: IReq, res: Response) {
   try {
-    const { firstname, lastname, salary, role, email, id } = req.body;
+    const {
+      firstname,
+      lastname,
+      salary,
+      role,
+      email,
+      id,
+    }: {
+      firstname: string;
+      lastname: string;
+      salary: number;
+      role: string;
+      email: string;
+      id: string;
+    } = req.body;
     if (req.role !== Role.Manager) {
       return res.status(HttpStatusCode.Unauthorized).send({
         status: false,
@@ -150,9 +167,10 @@ export async function adminEditEmployeesInfo(req: IReq, res: Response) {
 
     const found = await prisma.employee.findUnique({
       where: {
-        id,
+        id: id as string,
       },
     });
+
     if (!found) {
       return res.status(HttpStatusCode.NotFound).send({
         status: false,
@@ -178,7 +196,9 @@ export async function adminEditEmployeesInfo(req: IReq, res: Response) {
       message: "Employee record updated succesfully",
       data: update,
     });
-  } catch (error) {
+  } catch (error: any) {
+    console.log(error);
+
     res.status(500).send({
       status: false,
       message: error,
@@ -199,6 +219,7 @@ export async function employeeEditInfo(req: IReq, res: Response) {
     admin.parse({
       email,
       password,
+      companyCapacity: 0,
     });
 
     const found = await prisma.employee.findUnique({
@@ -224,7 +245,7 @@ export async function employeeEditInfo(req: IReq, res: Response) {
 
     res.status(HttpStatusCode.Ok).send({
       status: true,
-      message: "Password created",
+      message: "Password changed",
     });
   } catch (error: any) {
     if (error instanceof z.ZodError) {
@@ -263,14 +284,14 @@ export async function getEmployeeStats(req: IReq, res: Response) {
 
     totalonleave = await prisma.employee.count({
       where: {
-        id: req.userId as string,
+        managerId: req.userId as string,
         status: EmployeeStatus.onLeave,
       },
     });
 
     totalactive = await prisma.employee.count({
       where: {
-        id: req.userId as string,
+        managerId: req.userId as string,
         status: EmployeeStatus.active,
       },
     });
