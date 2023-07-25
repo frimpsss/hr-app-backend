@@ -1,9 +1,9 @@
-import { Request, Response } from "express";
+import { Response } from "express";
 import { EmployeeStatus, HttpStatusCode, IReq, Role } from "../../utils/@types";
 import { prisma } from "../../../prisma";
-import { admin } from "../../services/validator.service";
+import { adminEdit, employeeEdit } from "../../services/validator.service";
 import { z } from "zod";
-import { hashPassword } from "../../services/encryption.service";
+import { compare, hashPassword } from "../../services/encryption.service";
 import { updateEmployeeStatus } from "../../utils";
 export async function allEmployees(req: IReq, res: Response) {
   try {
@@ -13,7 +13,7 @@ export async function allEmployees(req: IReq, res: Response) {
         message: "Not a manager",
       });
     }
-    await updateEmployeeStatus(req.userId as string)
+    await updateEmployeeStatus(req.userId as string);
     const employees = await prisma.employee.findMany({
       where: {
         managerId: req.userId as string,
@@ -150,12 +150,16 @@ export async function adminEditEmployeesInfo(req: IReq, res: Response) {
       role,
       email,
       id,
+      contact,
+      departmentId,
     }: {
       firstname: string;
       lastname: string;
       salary: number;
       role: string;
       email: string;
+      departmentId: string;
+      contact: string;
       id: string;
     } = req.body;
     if (req.role !== Role.Manager) {
@@ -164,6 +168,16 @@ export async function adminEditEmployeesInfo(req: IReq, res: Response) {
         message: "Not an admin",
       });
     }
+
+    adminEdit.parse({
+      firstname,
+      lastname,
+      contact,
+      email,
+      departmentId,
+      role,
+      salary,
+    });
 
     const found = await prisma.employee.findUnique({
       where: {
@@ -183,6 +197,8 @@ export async function adminEditEmployeesInfo(req: IReq, res: Response) {
     found.salary = salary;
     found.role = role;
     found.email = email;
+    found.departmentId = departmentId;
+    found.contact = contact;
 
     const update = await prisma.employee.update({
       where: {
@@ -197,8 +213,13 @@ export async function adminEditEmployeesInfo(req: IReq, res: Response) {
       data: update,
     });
   } catch (error: any) {
-    console.log(error);
-
+    if (error instanceof z.ZodError) {
+      return res.send({
+        status: false,
+        message: "validation error",
+        data: error.errors,
+      });
+    }
     res.status(500).send({
       status: false,
       message: error,
@@ -208,7 +229,7 @@ export async function adminEditEmployeesInfo(req: IReq, res: Response) {
 
 export async function employeeEditInfo(req: IReq, res: Response) {
   try {
-    const { email, password } = req.body;
+    const { oldPassword, password } = req.body;
     if (req.role !== Role.Employee) {
       return res.status(HttpStatusCode.Unauthorized).send({
         status: false,
@@ -216,15 +237,14 @@ export async function employeeEditInfo(req: IReq, res: Response) {
       });
     }
 
-    admin.parse({
-      email,
+    employeeEdit.parse({
+      oldPassword,
       password,
-      companyCapacity: 0,
     });
 
     const found = await prisma.employee.findUnique({
       where: {
-        email,
+        id: req.userId as string,
       },
     });
 
@@ -234,11 +254,21 @@ export async function employeeEditInfo(req: IReq, res: Response) {
         message: "User doesnt exist",
       });
     }
+    const match = await compare(oldPassword, found.password);
+    console.log(match);
+    
+    if (!match) {
+      return res.status(HttpStatusCode.BadRequest).send({
+        status: false,
+        message: "Old password incorrect",
+      });
+    }
+
     const pwd = await hashPassword(password);
     found.password = pwd;
     await prisma.employee.update({
       where: {
-        email,
+        id: req.userId as string,
       },
       data: found,
     });

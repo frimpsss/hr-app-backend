@@ -34,3 +34,18 @@ export const leave = z.object({
   endDate: z.date(),
   leaveType: z.nativeEnum(LeaveType),
 });
+
+export const adminEdit = z.object({
+  email: z.string().email(),
+  firstname: z.string(),
+  lastname: z.string(),
+  contact: z.string(),
+  departmentId: z.string(),
+  role: z.string(),
+  salary: z.number()
+})
+
+export const employeeEdit = z.object({
+  oldPassword: z.string(),
+  password: z.string()
+})

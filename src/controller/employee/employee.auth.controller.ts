@@ -105,7 +105,7 @@ export async function login(req: Request, res: Response) {
       });
     }
 
-    const match = compare(password, foundUser.password);
+    const match = await compare(password, foundUser.password);
     if (!match) {
       return res.status(404).send({
         status: false,
