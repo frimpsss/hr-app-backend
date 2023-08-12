@@ -36,7 +36,6 @@ export async function updateEmployeeStatus(managerId: string) {
           where: { id: employee.id },
           data: { status: EmployeeStatus.onLeave },
         });
-        console.log(employee);
       } else {
         await prisma.employee.update({
           where: { id: employee.id },

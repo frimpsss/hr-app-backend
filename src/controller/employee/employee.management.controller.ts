@@ -14,23 +14,19 @@ export async function allEmployees(req: IReq, res: Response) {
       });
     }
     await updateEmployeeStatus(req.userId as string);
-    const employees = await prisma.employee.findMany({
+    const manager = await prisma.manager.findUnique({
       where: {
-        managerId: req.userId as string,
+        id: req.userId as string,
       },
       include: {
-        department: {
-          select: {
-            name: true,
-          },
-        },
+        employees: true,
       },
     });
 
     res.status(200).send({
       status: true,
       message: "Employees Retrieved Succesfully",
-      data: employees,
+      data: manager?.employees,
     });
   } catch (error) {
     res.status(500).send({
@@ -50,6 +46,7 @@ export async function singleEmployee(req: IReq, res: Response) {
           message: "pass id",
         });
       }
+
       const employee = await prisma.employee.findUnique({
         where: {
           id: String(id),
@@ -256,7 +253,7 @@ export async function employeeEditInfo(req: IReq, res: Response) {
     }
     const match = await compare(oldPassword, found.password);
     console.log(match);
-    
+
     if (!match) {
       return res.status(HttpStatusCode.BadRequest).send({
         status: false,

@@ -8,7 +8,7 @@ Welcome to the API documentation for HR-APP API. This document provides detailed
 
 ## Base URL
 
-The base url for all api endpoint is : **https://hr-app-backend-production.up.railway.app**
+The base url for all api endpoint is : 
 
 ## Authentication
 
@@ -16,7 +16,7 @@ To access the API, you will need an API key. Include the API key in the request 
 
 Add authorization header in the http request:
 
-```
+```JS
 Authorization: Bearer <Token>
 ```
 
@@ -28,7 +28,7 @@ Always returns JSON
 
   - STATUS CODE 2XX
 
-  ```
+  ```JSON
     {
         "status": true,
         "message": "Message string",
@@ -40,7 +40,7 @@ Always returns JSON
 
   - STATUS CODE 4XX or 5XX
 
-  ```
+  ```json
     {
         "status": false,
         "message": "Message string"
@@ -58,7 +58,7 @@ Description: Create an admin
 
 #### Body
 
-```
+```json
 {
     "email": "xx@xample.com"
     "password" : "XXXXXXXXX"
@@ -74,10 +74,10 @@ Description: Login in as an admin
 
 #### Body
 
-```
+```json
 {
-    "email": "xx@xample.com"
-    "password" : "XXXXXXXXX"
+    "email": "xx@xample.com",
+    "password": "XXXXXXXXX"
 }
 ```
 
@@ -90,7 +90,7 @@ Description: create an employee
 
 #### Body
 
-```
+```json
 {
     "email": "xx@xample.com",
     "firstname": "John",
