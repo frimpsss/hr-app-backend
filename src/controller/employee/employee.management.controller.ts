@@ -1,10 +1,12 @@
 import { Response } from "express";
 import { EmployeeStatus, HttpStatusCode, IReq, Role } from "../../utils/@types";
-import { prisma } from "../../../prisma";
 import { adminEdit, employeeEdit } from "../../services/validator.service";
 import { z } from "zod";
 import { compare, hashPassword } from "../../services/encryption.service";
 import { updateEmployeeStatus } from "../../utils";
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient()
 export async function allEmployees(req: IReq, res: Response) {
   try {
     if (req.role !== Role.Manager) {

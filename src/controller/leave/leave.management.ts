@@ -7,7 +7,6 @@ import {
   Role,
   LeaveStatus,
 } from "../../utils/@types";
-import { prisma } from "../../../prisma";
 import { z } from "zod";
 import {
   areDatesInRange,
@@ -15,7 +14,9 @@ import {
   updateEmployeeStatus,
 } from "../../utils";
 import { leave } from "../../services/validator.service";
+import { PrismaClient } from "@prisma/client";
 
+const prisma = new PrismaClient()
 export async function requestLeave(req: IReq, res: Response) {
   try {
     if (!req.userId) {

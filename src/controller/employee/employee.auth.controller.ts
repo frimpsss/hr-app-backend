@@ -1,11 +1,13 @@
 import { Request, Response } from "express";
 import { employee } from "../../services/validator.service";
 import { IAdmin, IReq, Role, HttpStatusCode } from "../../utils/@types";
-import { prisma } from "../../../prisma";
 import { IEmployee, EmployeeStatus } from "../../utils/@types";
 import { z } from "zod";
 import { compare, hashPassword } from "../../services/encryption.service";
 import { createToken } from "../../services/auth.service";
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient()
 export async function register(req: IReq, res: Response) {
   try {
     const {

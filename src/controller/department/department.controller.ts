@@ -1,8 +1,10 @@
 import { Response, Request } from "express";
-import { prisma } from "../../../prisma";
 import { department } from "../../services/validator.service";
 import { HttpStatusCode, IReq, Role } from "../../utils/@types";
 import { z } from "zod";
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient()
 export async function create(req: IReq, res: Response) {
   try {
     const { name } = req.body;

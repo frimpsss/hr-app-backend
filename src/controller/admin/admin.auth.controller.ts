@@ -1,12 +1,15 @@
 import { Request, Response } from "express";
 import { IAdmin, Role } from "../../utils/@types";
 import { admin, adminLogin } from "../../services/validator.service";
-import { prisma } from "../../../prisma";
 import { z } from "zod";
 import { hashPassword, compare } from "../../services/encryption.service";
 import { createToken } from "../../services/auth.service";
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient()
 export async function register(req: Request, res: Response) {
   try {
+    
     const { email, password, companyCapacity }: IAdmin = req.body;
 
     admin.parse({
