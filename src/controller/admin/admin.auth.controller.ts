@@ -98,6 +98,8 @@ export async function login(req: Request, res: Response) {
       token,
     });
   } catch (error: any) {
+    console.log(error);
+    
     if (error instanceof z.ZodError) {
       return res.send({
         status: false,
