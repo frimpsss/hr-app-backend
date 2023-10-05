@@ -13,7 +13,7 @@ import { verify } from "./middleware/verify.middleware";
 import { corsOptions } from "./utils/config";
 import { PrismaClient } from "@prisma/client";
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient();
 export const app: Express = express();
 dotenv.config();
 
@@ -38,10 +38,13 @@ app.all("*", (req: Request, res: Response, next: NextFunction) => {
   const error = new CustomError("Invalid route", 404);
   next(error);
 });
-app.use(errorHandler);
-(async() =>{
-  await prisma.$connect()
-  app.listen(port, () => {
-    console.log(`Server running on port ${port}`);
-  });
-})()
+// app.use(errorHandler);
+// (async() =>{
+//   await prisma.$connect()
+//   app.listen(port, () => {
+//     console.log(`Server running on port ${port}`);
+//   });
+// })()
+app.listen(port, () => {
+  console.log(`Server running on port ${port}`);
+});
