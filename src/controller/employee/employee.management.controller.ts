@@ -9,6 +9,7 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient()
 export async function allEmployees(req: IReq, res: Response) {
   try {
+    await prisma.$connect()
     if (req.role !== Role.Manager) {
       return res.status(HttpStatusCode.Unauthorized).send({
         status: false,

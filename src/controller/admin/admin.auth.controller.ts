@@ -11,7 +11,7 @@ export async function register(req: Request, res: Response) {
   try {
     
     const { email, password, companyCapacity }: IAdmin = req.body;
-
+    await prisma.$connect()
     admin.parse({
       email,
       password,

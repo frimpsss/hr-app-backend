@@ -7,6 +7,7 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient()
 export async function create(req: IReq, res: Response) {
   try {
+    await prisma.$connect()
     const { name } = req.body;
     if (!req.userId) {
       return;

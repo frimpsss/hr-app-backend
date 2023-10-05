@@ -19,6 +19,7 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient()
 export async function requestLeave(req: IReq, res: Response) {
   try {
+    await prisma.$connect()
     if (!req.userId) {
       return;
     }

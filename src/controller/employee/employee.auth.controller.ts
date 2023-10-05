@@ -10,6 +10,7 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient()
 export async function register(req: IReq, res: Response) {
   try {
+    await prisma.$connect()
     const {
       firstname,
       lastname,
