@@ -6,23 +6,29 @@ import { compare, hashPassword } from "../../services/encryption.service";
 import { updateEmployeeStatus } from "../../utils";
 import { PrismaClient } from "@prisma/client";
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient();
 export async function allEmployees(req: IReq, res: Response) {
   try {
-    await prisma.$connect()
+    await prisma.$connect();
     if (req.role !== Role.Manager) {
       return res.status(HttpStatusCode.Unauthorized).send({
         status: false,
         message: "Not a manager",
       });
     }
+    let start = parseInt(req.query.start as string) ?? 0;
+    let end = parseInt(req.query.end as string) ?? 10;
+    const limit = end - start;
     await updateEmployeeStatus(req.userId as string);
     const manager = await prisma.manager.findUnique({
       where: {
         id: req.userId as string,
       },
       include: {
-        employees: true,
+        employees: {
+          skip: start,
+          take: limit,
+        },
       },
     });
 
